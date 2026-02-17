@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="arab_countries">
+        <item>Palestine</item>
+        <item>Jordan</item>
+        <item>Egypt</item>
+        <item>Saudi Arabia</item>
+        <item>United Arab Emirates</item>
+        <item>Qatar</item>
+        <item>Kuwait</item>
+        <item>Oman</item>
+        <item>Bahrain</item>
+        <item>Iraq</item>
+        <item>Syria</item>
+        <item>Lebanon</item>
+        <item>Yemen</item>
+        <item>Morocco</item>
+        <item>Algeria</item>
+        <item>Tunisia</item>
+        <item>Libya</item>
+        <item>Sudan</item>
+        <item>Somalia</item>
+        <item>Mauritania</item>
+        <item>Djibouti</item>
+        <item>Comoros</item>
+    </string-array>
+</resources>
+
