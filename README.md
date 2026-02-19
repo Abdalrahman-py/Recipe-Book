@@ -1,44 +1,40 @@
-# Recipe Book 📱
+# Recipe Book
 
-A modern Android recipe management application built with Java, following MVVM architecture and Material 3 design principles.
+An Android app that lets users register, log in, share recipes, and discover recipes posted by others. Built with Java and Firebase.
 
-## 📖 Overview
+## Overview
 
-Recipe Book is an Android application that allows users to manage their favorite recipes. Users can create, edit, view, and delete recipes, complete with ingredients, step-by-step instructions, and multimedia support. The app features user authentication and stores all data securely in Firebase Cloud.
+Recipe Book is a community-driven recipe sharing app. After signing up, users can browse all recipes on the home screen, add their own, and manage them from their profile. All data is stored and synced in real time using Firebase Firestore.
 
-## ✨ Features
+## Features
 
-### Current Features (Slice 1 - Complete ✅)
-- **User Authentication**
-  - User registration with name, email, password, and country
-  - User login with email and password
-  - Secure logout functionality
-  - Session management
+**Authentication**
+- Register with name, email, password, and country
+- Log in and log out securely
+- Session management to keep users signed in
 
-- **Recipe Management**
-  - Browse all recipes with RecyclerView
-  - View detailed recipe information
-  - Add new recipes with title, ingredients, steps, category, and video URL
-  - Edit existing recipes (creator only)
-  - Delete recipes (creator only)
+**Recipe Management**
+- Browse all recipes from all users on the home screen
+- View full recipe details including ingredients, steps, category, and video URL
+- Add new recipes
+- Edit or delete your own recipes (only visible to the recipe creator)
 
-- **User Interface**
-  - Material 3 design components
-  - Clean and intuitive navigation
-  - Tab-based recipe filtering
-  - Search functionality
-  - User profile display
+**Home Screen**
+- Search recipes by keyword in real time
+- Filter recipes by category using tabs
+- Recipes reload automatically when returning to the home screen
 
-### Upcoming Features (Slice 2 - Planned)
-- Firebase Authentication integration
-- Firestore database operations
-- Form validation
-- Image upload and display
-- Real-time data synchronization
-- Error handling and loading states
-- Toast notifications
+**Profile**
+- View your own profile info
+- See all recipes you have posted
+- Update your profile picture (with image cropping support)
+- Log out from the profile screen
 
-## 👨‍💻 Author
+## Tech Stack
 
-**Abdalrahman**
-- GitHub: [@Abdalrahman-py](https://github.com/Abdalrahman-py)
+- **Language:** Java
+- **Architecture:** MVVM (ViewModel + LiveData)
+- **Backend:** Firebase Authentication, Firebase Firestore
+- **Image Loading:** Glide
+- **Image Cropping:** uCrop
+- **UI:** Material 3, ViewBinding, RecyclerView, Fragment-based navigation
