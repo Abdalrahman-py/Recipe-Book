@@ -113,40 +113,101 @@ public class RecipeRepository {
 
         firestore.collection("recipes")
                 .whereEqualTo("creatorId", uid)
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    List<Recipe> recipes = new ArrayList<>();
-                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-                        Recipe recipe = new Recipe();
-                        recipe.setId(document.getId());
-                        recipe.setTitle(document.getString("title"));
-                        recipe.setCategory(document.getString("category"));
-                        recipe.setVideoUrl(document.getString("videoUrl"));
-                        recipe.setImageUrl(document.getString("imageUrl"));
-                        recipe.setCreatorId(document.getString("creatorId"));
-
-                        // Get ingredients list
-                        List<String> ingredientsList = (List<String>) document.get("ingredients");
-                        recipe.setIngredients(ingredientsList);
-
-                        // Get steps list
-                        List<String> stepsList = (List<String>) document.get("steps");
-                        recipe.setSteps(stepsList);
-
-                        // Get timestamp
-                        Timestamp timestamp = document.getTimestamp("createdAt");
-                        if (timestamp != null) {
-                            recipe.setCreatedAt(timestamp.toDate());
-                        }
-
-                        recipes.add(recipe);
+                .addSnapshotListener((value, error) -> {
+                    if (error != null) {
+                        errorMessage.setValue(error.getMessage());
+                        userRecipeList.setValue(new ArrayList<>());
+                        return;
                     }
-                    userRecipeList.setValue(recipes);
+
+                    if (value != null) {
+                        List<Recipe> recipes = new ArrayList<>();
+                        for (QueryDocumentSnapshot document : value) {
+                            Recipe recipe = new Recipe();
+                            recipe.setId(document.getId());
+                            recipe.setTitle(document.getString("title"));
+                            recipe.setCategory(document.getString("category"));
+                            recipe.setVideoUrl(document.getString("videoUrl"));
+                            recipe.setImageUrl(document.getString("imageUrl"));
+                            recipe.setCreatorId(document.getString("creatorId"));
+
+                            // Get ingredients list
+                            List<String> ingredientsList = (List<String>) document.get("ingredients");
+                            recipe.setIngredients(ingredientsList);
+
+                            // Get steps list
+                            List<String> stepsList = (List<String>) document.get("steps");
+                            recipe.setSteps(stepsList);
+
+                            // Get timestamp
+                            Timestamp timestamp = document.getTimestamp("createdAt");
+                            if (timestamp != null) {
+                                recipe.setCreatedAt(timestamp.toDate());
+                            }
+
+                            recipes.add(recipe);
+                        }
+                        userRecipeList.setValue(recipes);
+                    }
+                });
+    }
+
+    public LiveData<Boolean> deleteRecipe(String recipeId) {
+        MutableLiveData<Boolean> result = new MutableLiveData<>();
+
+        firestore.collection("recipes")
+                .document(recipeId)
+                .delete()
+                .addOnSuccessListener(aVoid -> {
+                    result.postValue(true);
                 })
                 .addOnFailureListener(e -> {
-                    errorMessage.setValue(e.getMessage());
-                    userRecipeList.setValue(new ArrayList<>());
+                    result.postValue(false);
                 });
+
+        return result;
+    }
+
+    public LiveData<Boolean> updateRecipe(
+            String recipeId,
+            String title,
+            String ingredientsRaw,
+            String stepsRaw,
+            String category,
+            String videoUrl,
+            String imageUrl
+    ) {
+        MutableLiveData<Boolean> result = new MutableLiveData<>();
+
+        List<String> ingredientsList = Arrays.stream(ingredientsRaw.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .collect(Collectors.toList());
+
+        List<String> stepsList = Arrays.stream(stepsRaw.split("\n"))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .collect(Collectors.toList());
+
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("title", title);
+        updates.put("ingredients", ingredientsList);
+        updates.put("steps", stepsList);
+        updates.put("category", category);
+        updates.put("videoUrl", videoUrl);
+        updates.put("imageUrl", imageUrl);
+
+        firestore.collection("recipes")
+                .document(recipeId)
+                .update(updates)
+                .addOnSuccessListener(aVoid -> {
+                    result.postValue(true);
+                })
+                .addOnFailureListener(e -> {
+                    result.postValue(false);
+                });
+
+        return result;
     }
 
     public LiveData<Boolean> getAddSuccess() {
@@ -165,4 +226,3 @@ public class RecipeRepository {
         return userRecipeList;
     }
 }
-

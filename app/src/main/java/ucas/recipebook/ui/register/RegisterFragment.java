@@ -1,13 +1,19 @@
 package ucas.recipebook.ui.register;
 
+import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -17,10 +23,31 @@ import ucas.recipebook.R;
 import ucas.recipebook.databinding.FragmentRegisterBinding;
 import ucas.recipebook.viewmodel.RegisterViewModel;
 
+import com.yalantis.ucrop.UCrop;
+import java.io.File;
+
 public class RegisterFragment extends Fragment {
 
     private FragmentRegisterBinding binding;
     private RegisterViewModel viewModel;
+    private Uri selectedImageUri;
+
+    private final ActivityResultLauncher<Intent> imagePickerLauncher =
+            registerForActivityResult(
+                    new ActivityResultContracts.StartActivityForResult(),
+                    result -> {
+                        if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                            Uri sourceUri = result.getData().getData();
+                            Uri destinationUri = Uri.fromFile(
+                                    new File(requireContext().getCacheDir(),
+                                            "cropped_" + System.currentTimeMillis() + ".jpg")
+                            );
+                            UCrop.of(sourceUri, destinationUri)
+                                    .withAspectRatio(1, 1)
+                                    .withMaxResultSize(800, 800)
+                                    .start(requireContext(), this);
+                        }
+                    });
 
     @Nullable
     @Override
@@ -34,6 +61,12 @@ public class RegisterFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         viewModel = new ViewModelProvider(this).get(RegisterViewModel.class);
+
+        binding.ivProfileImage.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_PICK);
+            intent.setType("image/*");
+            imagePickerLauncher.launch(intent);
+        });
 
         setupCountrySpinner();
         setupObservers();
@@ -88,6 +121,11 @@ public class RegisterFragment extends Fragment {
                 return;
             }
 
+            if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                Toast.makeText(requireContext(), "Invalid email format", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             if (TextUtils.isEmpty(password)) {
                 Toast.makeText(requireContext(), "Please enter password", Toast.LENGTH_SHORT).show();
                 return;
@@ -98,13 +136,31 @@ public class RegisterFragment extends Fragment {
                 return;
             }
 
+            String photoUrl = null;
+            if (selectedImageUri != null) {
+                photoUrl = selectedImageUri.toString();
+            }
+
             // Call ViewModel to register with country
-            viewModel.register(name, email, password, country);
+            viewModel.register(name, email, password, country, photoUrl);
         });
 
         binding.tvLogin.setOnClickListener(v -> {
             requireActivity().getSupportFragmentManager().popBackStack();
         });
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == Activity.RESULT_OK && requestCode == UCrop.REQUEST_CROP) {
+            Uri resultUri = UCrop.getOutput(data);
+            if (resultUri != null) {
+                selectedImageUri = resultUri;
+                binding.ivProfileImage.setImageURI(resultUri);
+            }
+        }
     }
 
     @Override

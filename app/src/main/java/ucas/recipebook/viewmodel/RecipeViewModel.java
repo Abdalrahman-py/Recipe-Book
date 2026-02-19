@@ -54,6 +54,22 @@ public class RecipeViewModel extends ViewModel {
         });
     }
 
+    public LiveData<Boolean> deleteRecipe(String recipeId) {
+        return recipeRepository.deleteRecipe(recipeId);
+    }
+
+    public LiveData<Boolean> updateRecipe(
+            String recipeId,
+            String title,
+            String ingredients,
+            String steps,
+            String category,
+            String videoUrl,
+            String imageUrl
+    ) {
+        return recipeRepository.updateRecipe(recipeId, title, ingredients, steps, category, videoUrl, imageUrl);
+    }
+
     public LiveData<Boolean> getAddSuccess() {
         return addSuccess;
     }
@@ -66,4 +82,3 @@ public class RecipeViewModel extends ViewModel {
         return recipeList;
     }
 }
-

@@ -83,6 +83,10 @@ public class ProfileViewModel extends AndroidViewModel {
         sessionManager.clearSession();
     }
 
+    public void updateProfileImage(String photoUrl) {
+        authRepository.updateProfileImage(photoUrl);
+    }
+
     public LiveData<User> getUserProfile() {
         return userProfile;
     }
@@ -95,4 +99,3 @@ public class ProfileViewModel extends AndroidViewModel {
         return userRecipes;
     }
 }
-

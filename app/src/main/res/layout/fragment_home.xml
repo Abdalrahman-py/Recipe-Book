@@ -14,14 +14,16 @@
             android:layout_height="?attr/actionBarSize"
             app:title="@string/app_name">
 
-            <ImageView
+            <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/ivProfile"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_gravity="end"
                 android:layout_marginEnd="16dp"
                 android:contentDescription="@string/profile"
-                android:src="@mipmap/ic_launcher" />
+                android:scaleType="centerCrop"
+                android:src="@mipmap/ic_launcher"
+                app:shapeAppearanceOverlay="@style/CircleImage" />
         </com.google.android.material.appbar.MaterialToolbar>
 
         <com.google.android.material.tabs.TabLayout

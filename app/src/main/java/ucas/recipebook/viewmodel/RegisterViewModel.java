@@ -17,8 +17,8 @@ public class RegisterViewModel extends ViewModel {
         authRepository = new AuthRepository();
     }
 
-    public void register(String name, String email, String password, String country) {
-        authRepository.register(name, email, password, country);
+    public void register(String name, String email, String password, String country, String photoUrl) {
+        authRepository.register(name, email, password, country, photoUrl);
 
         authRepository.getRegisterSuccess().observeForever(success -> {
             if (success != null && success) {

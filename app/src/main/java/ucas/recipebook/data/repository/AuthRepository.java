@@ -26,13 +26,13 @@ public class AuthRepository {
         this.firestore = FirebaseFirestore.getInstance();
     }
 
-    public void register(String name, String email, String password, String country) {
+    public void register(String name, String email, String password, String country, String photoUrl) {
         firebaseAuth.createUserWithEmailAndPassword(email, password)
                 .addOnSuccessListener(authResult -> {
                     FirebaseUser firebaseUser = authResult.getUser();
                     if (firebaseUser != null) {
                         // Save user profile to Firestore
-                        saveUserProfile(firebaseUser.getUid(), name, email, country, null);
+                        saveUserProfile(firebaseUser.getUid(), name, email, country, photoUrl);
                     } else {
                         errorMessage.setValue("Registration failed: User creation error");
                     }
@@ -109,6 +109,30 @@ public class AuthRepository {
         return firebaseAuth.getCurrentUser() != null;
     }
 
+    public void updateProfileImage(String photoUrl) {
+        FirebaseUser currentUser = firebaseAuth.getCurrentUser();
+        if (currentUser != null) {
+            firestore.collection("users")
+                    .document(currentUser.getUid())
+                    .update("photoUrl", photoUrl);
+        }
+    }
+
+    public LiveData<User> listenToUserProfile(String uid) {
+        MutableLiveData<User> liveData = new MutableLiveData<>();
+
+        firestore.collection("users")
+                .document(uid)
+                .addSnapshotListener((snapshot, error) -> {
+                    if (snapshot != null && snapshot.exists()) {
+                        User user = snapshot.toObject(User.class);
+                        liveData.postValue(user);
+                    }
+                });
+
+        return liveData;
+    }
+
     public LiveData<Boolean> getRegisterSuccess() {
         return registerSuccess;
     }
@@ -125,4 +149,3 @@ public class AuthRepository {
         return userProfile;
     }
 }
-

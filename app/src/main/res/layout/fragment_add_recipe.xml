@@ -10,14 +10,27 @@
         android:layout_height="wrap_content"
         android:padding="16dp">
 
+        <ImageView
+            android:id="@+id/ivRecipeImage"
+            android:layout_width="0dp"
+            android:layout_height="200dp"
+            android:background="?attr/colorSurfaceVariant"
+            android:contentDescription="@string/recipe_image"
+            android:scaleType="centerCrop"
+            android:src="@mipmap/ic_launcher"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilTitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
             android:hint="@string/recipe_title"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toBottomOf="@id/ivRecipeImage">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etTitle"

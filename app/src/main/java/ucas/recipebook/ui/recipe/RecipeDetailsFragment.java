@@ -1,14 +1,21 @@
 package ucas.recipebook.ui.recipe;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+
+import com.bumptech.glide.Glide;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import ucas.recipebook.MainActivity;
 import ucas.recipebook.data.model.Recipe;
@@ -57,6 +64,12 @@ public class RecipeDetailsFragment extends Fragment {
 
     private void displayRecipe() {
         if (recipe != null) {
+            if (recipe.getImageUrl() != null && !recipe.getImageUrl().isEmpty()) {
+                Glide.with(requireContext())
+                        .load(recipe.getImageUrl())
+                        .into(binding.ivRecipeImage);
+            }
+
             binding.tvTitle.setText(recipe.getTitle());
             binding.tvCategory.setText(recipe.getCategory());
             binding.tvVideoUrl.setText(recipe.getVideoUrl());
@@ -72,6 +85,17 @@ public class RecipeDetailsFragment extends Fragment {
                 }
                 binding.tvSteps.setText(steps.toString());
             }
+
+            FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+
+            if (currentUser != null && recipe.getCreatorId() != null
+                    && recipe.getCreatorId().equals(currentUser.getUid())) {
+                binding.ivEdit.setVisibility(View.VISIBLE);
+                binding.ivDelete.setVisibility(View.VISIBLE);
+            } else {
+                binding.ivEdit.setVisibility(View.GONE);
+                binding.ivDelete.setVisibility(View.GONE);
+            }
         }
     }
 
@@ -83,12 +107,33 @@ public class RecipeDetailsFragment extends Fragment {
         });
 
         binding.ivDelete.setOnClickListener(v -> {
-            // Delete logic will be implemented later
-            requireActivity().getSupportFragmentManager().popBackStack();
+            if (recipe != null && recipe.getId() != null) {
+                viewModel.deleteRecipe(recipe.getId()).observe(getViewLifecycleOwner(), success -> {
+                    if (success != null && success) {
+                        Toast.makeText(requireContext(), "Recipe deleted successfully", Toast.LENGTH_SHORT).show();
+                        requireActivity().getSupportFragmentManager().popBackStack();
+                    } else {
+                        Toast.makeText(requireContext(), "Failed to delete recipe", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
         });
 
         binding.tvVideoUrl.setOnClickListener(v -> {
-            // Open video URL logic will be implemented later
+            if (recipe.getVideoUrl() != null && !recipe.getVideoUrl().isEmpty()) {
+                String url = recipe.getVideoUrl().trim();
+
+                if (!url.startsWith("http://") && !url.startsWith("https://")) {
+                    url = "https://" + url;
+                }
+
+                try {
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                    startActivity(intent);
+                } catch (Exception e) {
+                    Toast.makeText(requireContext(), "Invalid video URL", Toast.LENGTH_SHORT).show();
+                }
+            }
         });
     }
 

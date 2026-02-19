@@ -1,17 +1,26 @@
 package ucas.recipebook.ui.profile;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
+
+import com.bumptech.glide.Glide;
+import com.yalantis.ucrop.UCrop;
+
+import java.io.File;
 
 import ucas.recipebook.AuthActivity;
 import ucas.recipebook.MainActivity;
@@ -24,6 +33,25 @@ public class ProfileFragment extends Fragment {
     private FragmentProfileBinding binding;
     private ProfileViewModel viewModel;
     private RecipeAdapter adapter;
+    private Uri selectedImageUri;
+
+    private final ActivityResultLauncher<Intent> imagePickerLauncher =
+            registerForActivityResult(
+                    new ActivityResultContracts.StartActivityForResult(),
+                    result -> {
+                        if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                            Uri sourceUri = result.getData().getData();
+                            Uri destinationUri = Uri.fromFile(
+                                    new File(requireContext().getCacheDir(),
+                                            "cropped_" + System.currentTimeMillis() + ".jpg")
+                            );
+
+                            UCrop.of(sourceUri, destinationUri)
+                                    .withAspectRatio(1, 1)
+                                    .withMaxResultSize(800, 800)
+                                    .start(requireContext(), this);
+                        }
+                    });
 
     @Nullable
     @Override
@@ -37,6 +65,12 @@ public class ProfileFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         viewModel = new ViewModelProvider(this).get(ProfileViewModel.class);
+
+        binding.ivUserPhoto.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_PICK);
+            intent.setType("image/*");
+            imagePickerLauncher.launch(intent);
+        });
 
         setupRecyclerView();
         setupObservers();
@@ -64,6 +98,12 @@ public class ProfileFragment extends Fragment {
             if (user != null) {
                 binding.tvName.setText(user.getName());
                 binding.tvEmail.setText(user.getEmail());
+
+                if (user.getPhotoUrl() != null && !user.getPhotoUrl().isEmpty()) {
+                    Glide.with(requireContext())
+                            .load(user.getPhotoUrl())
+                            .into(binding.ivUserPhoto);
+                }
             }
         });
 
@@ -92,6 +132,23 @@ public class ProfileFragment extends Fragment {
             startActivity(intent);
             requireActivity().finish();
         });
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == Activity.RESULT_OK && requestCode == UCrop.REQUEST_CROP) {
+            Uri resultUri = UCrop.getOutput(data);
+            if (resultUri != null) {
+                selectedImageUri = resultUri;
+                binding.ivUserPhoto.setImageURI(resultUri);
+
+                if (selectedImageUri != null) {
+                    viewModel.updateProfileImage(selectedImageUri.toString());
+                }
+            }
+        }
     }
 
     @Override

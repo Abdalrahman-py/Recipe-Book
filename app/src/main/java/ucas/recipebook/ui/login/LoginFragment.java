@@ -3,6 +3,7 @@ package ucas.recipebook.ui.login;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -73,6 +74,11 @@ public class LoginFragment extends Fragment {
             // Validate inputs
             if (TextUtils.isEmpty(email)) {
                 Toast.makeText(requireContext(), "Please enter email", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                Toast.makeText(requireContext(), "Invalid email format", Toast.LENGTH_SHORT).show();
                 return;
             }
 

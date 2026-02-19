@@ -4,17 +4,23 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
 import ucas.recipebook.data.model.Recipe;
+import ucas.recipebook.data.model.User;
+import ucas.recipebook.data.repository.AuthRepository;
 import ucas.recipebook.data.repository.RecipeRepository;
 
 public class HomeViewModel extends ViewModel {
 
     private final RecipeRepository recipeRepository;
+    private final AuthRepository authRepository;
     private final MutableLiveData<List<Recipe>> recipeList = new MutableLiveData<>();
     private final MutableLiveData<String> errorMessage = new MutableLiveData<>();
     private final MutableLiveData<List<String>> categories = new MutableLiveData<>();
@@ -26,29 +32,32 @@ public class HomeViewModel extends ViewModel {
 
     public HomeViewModel() {
         recipeRepository = new RecipeRepository();
+        authRepository = new AuthRepository();
     }
 
     public void loadAllRecipes() {
         recipeRepository.getAllRecipes();
+    }
 
-        recipeRepository.getRecipeList().observeForever(recipes -> {
-            if (recipes != null) {
-                fullRecipeList = recipes;
-                recipeList.setValue(recipes);
+    public LiveData<List<Recipe>> observeRecipeData() {
+        return recipeRepository.getRecipeList();
+    }
 
-                // Extract unique categories
-                extractCategories(recipes);
+    public LiveData<String> observeRepositoryErrors() {
+        return recipeRepository.getErrorMessage();
+    }
 
-                // Apply filters
-                applyFilters();
-            }
-        });
+    public void processRecipeData(List<Recipe> recipes) {
+        if (recipes != null) {
+            fullRecipeList = new ArrayList<>(recipes);
+            recipeList.setValue(recipes);
 
-        recipeRepository.getErrorMessage().observeForever(error -> {
-            if (error != null) {
-                errorMessage.setValue(error);
-            }
-        });
+            // Extract unique categories
+            extractCategories(recipes);
+
+            // Apply filters
+            applyFilters();
+        }
     }
 
     private void extractCategories(List<Recipe> recipes) {
@@ -122,5 +131,12 @@ public class HomeViewModel extends ViewModel {
     public LiveData<List<Recipe>> getFilteredRecipes() {
         return filteredRecipes;
     }
-}
 
+    public LiveData<User> getCurrentUserProfile() {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            return authRepository.listenToUserProfile(currentUser.getUid());
+        }
+        return new MutableLiveData<>();
+    }
+}

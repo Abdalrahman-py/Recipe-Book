@@ -80,18 +80,28 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvCategory" />
 
-        <TextView
-            android:id="@+id/tvIngredients"
+        <ScrollView
+            android:id="@+id/svIngredients"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="16dp"
-            android:text="@string/ingredients"
-            android:textSize="14sp"
+            android:fillViewport="false"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvIngredientsLabel" />
+            app:layout_constraintTop_toBottomOf="@id/tvIngredientsLabel">
+
+            <TextView
+                android:id="@+id/tvIngredients"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:maxLines="7"
+                android:overScrollMode="ifContentScrolls"
+                android:scrollbars="vertical"
+                android:text="@string/ingredients"
+                android:textSize="14sp" />
+        </ScrollView>
 
         <TextView
             android:id="@+id/tvStepsLabel"
@@ -105,20 +115,30 @@
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvIngredients" />
+            app:layout_constraintTop_toBottomOf="@id/svIngredients" />
 
-        <TextView
-            android:id="@+id/tvSteps"
+        <ScrollView
+            android:id="@+id/svSteps"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="16dp"
-            android:text="@string/steps"
-            android:textSize="14sp"
+            android:fillViewport="false"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvStepsLabel" />
+            app:layout_constraintTop_toBottomOf="@id/tvStepsLabel">
+
+            <TextView
+                android:id="@+id/tvSteps"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:maxLines="7"
+                android:overScrollMode="ifContentScrolls"
+                android:scrollbars="vertical"
+                android:text="@string/steps"
+                android:textSize="14sp" />
+        </ScrollView>
 
         <TextView
             android:id="@+id/tvVideoUrl"
@@ -130,7 +150,7 @@
             android:textSize="14sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvSteps" />
+            app:layout_constraintTop_toBottomOf="@id/svSteps" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

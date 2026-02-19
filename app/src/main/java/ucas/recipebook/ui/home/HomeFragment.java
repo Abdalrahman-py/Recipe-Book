@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+    import com.bumptech.glide.Glide;
 import com.google.android.material.tabs.TabLayout;
 
 import java.util.List;
@@ -90,6 +91,18 @@ public class HomeFragment extends Fragment {
     }
 
     private void setupObservers() {
+        // Observe raw recipe data from repository and process it
+        viewModel.observeRecipeData().observe(getViewLifecycleOwner(), recipes -> {
+            viewModel.processRecipeData(recipes);
+        });
+
+        // Observe repository errors
+        viewModel.observeRepositoryErrors().observe(getViewLifecycleOwner(), error -> {
+            if (error != null && !error.isEmpty()) {
+                Toast.makeText(requireContext(), "Error: " + error, Toast.LENGTH_LONG).show();
+            }
+        });
+
         // Observe categories and setup tabs dynamically
         viewModel.getCategories().observe(getViewLifecycleOwner(), categoryList -> {
             if (categoryList != null && !categoryList.isEmpty()) {
@@ -104,10 +117,19 @@ public class HomeFragment extends Fragment {
             }
         });
 
-        // Observe error messages
+        // Observe error messages from ViewModel
         viewModel.getErrorMessage().observe(getViewLifecycleOwner(), error -> {
-            if (error != null) {
+            if (error != null && !error.isEmpty()) {
                 Toast.makeText(requireContext(), "Error: " + error, Toast.LENGTH_LONG).show();
+            }
+        });
+
+        // Observe current user profile for profile icon
+        viewModel.getCurrentUserProfile().observe(getViewLifecycleOwner(), user -> {
+            if (user != null && user.getPhotoUrl() != null && !user.getPhotoUrl().isEmpty()) {
+                Glide.with(requireContext())
+                        .load(user.getPhotoUrl())
+                        .into(binding.ivProfile);
             }
         });
     }

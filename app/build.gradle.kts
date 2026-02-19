@@ -41,7 +41,6 @@ android {
 
 dependencies {
     implementation(platform("com.google.firebase:firebase-bom:34.9.0"))
-    implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
 
@@ -52,6 +51,13 @@ dependencies {
 
     // RecyclerView
     implementation("androidx.recyclerview:recyclerview:1.3.2")
+
+    // Glide for image loading
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+    annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
+
+    // uCrop for image cropping
+    implementation("com.github.yalantis:ucrop:2.2.8")
 
     implementation(libs.appcompat)
     implementation(libs.material)
