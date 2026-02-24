@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,8 +17,10 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import ucas.recipebook.MainActivity;
+import ucas.recipebook.R;
 import ucas.recipebook.data.model.Recipe;
 import ucas.recipebook.databinding.FragmentRecipeDetailsBinding;
+import ucas.recipebook.utils.ToastUtils;
 import ucas.recipebook.viewmodel.RecipeViewModel;
 
 public class RecipeDetailsFragment extends Fragment {
@@ -65,9 +66,15 @@ public class RecipeDetailsFragment extends Fragment {
     private void displayRecipe() {
         if (recipe != null) {
             if (recipe.getImageUrl() != null && !recipe.getImageUrl().isEmpty()) {
+                binding.ivRecipeImage.setScaleType(android.widget.ImageView.ScaleType.CENTER_CROP);
                 Glide.with(requireContext())
                         .load(recipe.getImageUrl())
+                        .placeholder(R.drawable.ic_recipe_placeholder)
+                        .centerCrop()
                         .into(binding.ivRecipeImage);
+            } else {
+                binding.ivRecipeImage.setScaleType(android.widget.ImageView.ScaleType.CENTER);
+                binding.ivRecipeImage.setImageResource(R.drawable.ic_recipe_placeholder);
             }
 
             binding.tvTitle.setText(recipe.getTitle());
@@ -75,7 +82,7 @@ public class RecipeDetailsFragment extends Fragment {
             binding.tvVideoUrl.setText(recipe.getVideoUrl());
 
             if (recipe.getIngredients() != null) {
-                binding.tvIngredients.setText(String.join("\n• ", recipe.getIngredients()));
+                binding.tvIngredients.setText("• " + String.join("\n• ", recipe.getIngredients()));
             }
 
             if (recipe.getSteps() != null) {
@@ -110,10 +117,10 @@ public class RecipeDetailsFragment extends Fragment {
             if (recipe != null && recipe.getId() != null) {
                 viewModel.deleteRecipe(recipe.getId()).observe(getViewLifecycleOwner(), success -> {
                     if (success != null && success) {
-                        Toast.makeText(requireContext(), "Recipe deleted successfully", Toast.LENGTH_SHORT).show();
+                        ToastUtils.showShort(requireContext(), "Recipe deleted successfully");
                         requireActivity().getSupportFragmentManager().popBackStack();
                     } else {
-                        Toast.makeText(requireContext(), "Failed to delete recipe", Toast.LENGTH_SHORT).show();
+                        ToastUtils.showShort(requireContext(), "Failed to delete recipe");
                     }
                 });
             }
@@ -131,7 +138,7 @@ public class RecipeDetailsFragment extends Fragment {
                     Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
                     startActivity(intent);
                 } catch (Exception e) {
-                    Toast.makeText(requireContext(), "Invalid video URL", Toast.LENGTH_SHORT).show();
+                    ToastUtils.showShort(requireContext(), "Invalid video URL");
                 }
             }
         });

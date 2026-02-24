@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
@@ -19,6 +20,7 @@ public class AuthRepository {
     private final MutableLiveData<Boolean> registerSuccess = new MutableLiveData<>();
     private final MutableLiveData<Boolean> loginSuccess = new MutableLiveData<>();
     private final MutableLiveData<String> errorMessage = new MutableLiveData<>();
+    private final MutableLiveData<String> profileErrorMessage = new MutableLiveData<>();
     private final MutableLiveData<User> userProfile = new MutableLiveData<>();
 
     public AuthRepository() {
@@ -68,22 +70,22 @@ public class AuthRepository {
     public void getUserProfile(String uid) {
         firestore.collection("users")
                 .document(uid)
-                .get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists()) {
+                .addSnapshotListener((documentSnapshot, error) -> {
+                    if (error != null) {
+                        profileErrorMessage.postValue("Failed to load profile: " + error.getMessage());
+                        return;
+                    }
+                    if (documentSnapshot != null && documentSnapshot.exists()) {
                         User user = new User();
                         user.setUid(uid);
                         user.setName(documentSnapshot.getString("name"));
                         user.setEmail(documentSnapshot.getString("email"));
                         user.setCountry(documentSnapshot.getString("country"));
                         user.setPhotoUrl(documentSnapshot.getString("photoUrl"));
-                        userProfile.setValue(user);
+                        userProfile.postValue(user);
                     } else {
-                        errorMessage.setValue("User profile not found");
+                        profileErrorMessage.postValue("User profile not found");
                     }
-                })
-                .addOnFailureListener(e -> {
-                    errorMessage.setValue("Failed to load profile: " + e.getMessage());
                 });
     }
 
@@ -112,9 +114,10 @@ public class AuthRepository {
     public void updateProfileImage(String photoUrl) {
         FirebaseUser currentUser = firebaseAuth.getCurrentUser();
         if (currentUser != null) {
+            Object value = (photoUrl != null) ? photoUrl : FieldValue.delete();
             firestore.collection("users")
                     .document(currentUser.getUid())
-                    .update("photoUrl", photoUrl);
+                    .update("photoUrl", value);
         }
     }
 
@@ -125,7 +128,12 @@ public class AuthRepository {
                 .document(uid)
                 .addSnapshotListener((snapshot, error) -> {
                     if (snapshot != null && snapshot.exists()) {
-                        User user = snapshot.toObject(User.class);
+                        User user = new User();
+                        user.setUid(uid);
+                        user.setName(snapshot.getString("name"));
+                        user.setEmail(snapshot.getString("email"));
+                        user.setCountry(snapshot.getString("country"));
+                        user.setPhotoUrl(snapshot.getString("photoUrl"));
                         liveData.postValue(user);
                     }
                 });
@@ -143,6 +151,10 @@ public class AuthRepository {
 
     public LiveData<String> getErrorMessage() {
         return errorMessage;
+    }
+
+    public LiveData<String> getProfileErrorMessage() {
+        return profileErrorMessage;
     }
 
     public LiveData<User> getUserProfile() {

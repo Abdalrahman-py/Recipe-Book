@@ -15,8 +15,6 @@ public class LoginViewModel extends AndroidViewModel {
     private final AuthRepository authRepository;
     private final SessionManager sessionManager;
 
-    private final MutableLiveData<Boolean> loginSuccess = new MutableLiveData<>();
-    private final MutableLiveData<String> errorMessage = new MutableLiveData<>();
     private final MutableLiveData<Boolean> autoLogin = new MutableLiveData<>();
 
     public LoginViewModel(@NonNull Application application) {
@@ -34,28 +32,16 @@ public class LoginViewModel extends AndroidViewModel {
     }
 
     public void login(String email, String password, boolean rememberMe) {
+        sessionManager.saveRememberMe(rememberMe);
         authRepository.login(email, password);
-
-        authRepository.getLoginSuccess().observeForever(success -> {
-            if (success != null && success) {
-                sessionManager.saveRememberMe(rememberMe);
-                loginSuccess.setValue(true);
-            }
-        });
-
-        authRepository.getErrorMessage().observeForever(error -> {
-            if (error != null) {
-                errorMessage.setValue(error);
-            }
-        });
     }
 
     public LiveData<Boolean> getLoginSuccess() {
-        return loginSuccess;
+        return authRepository.getLoginSuccess();
     }
 
     public LiveData<String> getErrorMessage() {
-        return errorMessage;
+        return authRepository.getErrorMessage();
     }
 
     public LiveData<Boolean> getAutoLogin() {

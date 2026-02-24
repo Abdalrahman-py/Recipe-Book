@@ -16,8 +16,8 @@
             android:layout_height="200dp"
             android:background="?attr/colorSurfaceVariant"
             android:contentDescription="@string/recipe_image"
-            android:scaleType="centerCrop"
-            android:src="@mipmap/ic_launcher"
+            android:scaleType="center"
+            android:src="@drawable/ic_recipe_placeholder"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

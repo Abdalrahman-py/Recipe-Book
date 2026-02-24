@@ -1,22 +1,24 @@
 package ucas.recipebook.ui.adapter;
 
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+
 import java.util.ArrayList;
 import java.util.List;
 
+import ucas.recipebook.R;
 import ucas.recipebook.data.model.Recipe;
+import ucas.recipebook.databinding.ItemRecipeBinding;
 
 public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeViewHolder> {
 
     private List<Recipe> recipes = new ArrayList<>();
-    private OnRecipeClickListener listener;
+    private final OnRecipeClickListener listener;
 
     public interface OnRecipeClickListener {
         void onRecipeClick(Recipe recipe);
@@ -34,15 +36,14 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
     @NonNull
     @Override
     public RecipeViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(android.R.layout.simple_list_item_2, parent, false);
-        return new RecipeViewHolder(view);
+        ItemRecipeBinding binding = ItemRecipeBinding.inflate(
+                LayoutInflater.from(parent.getContext()), parent, false);
+        return new RecipeViewHolder(binding);
     }
 
     @Override
     public void onBindViewHolder(@NonNull RecipeViewHolder holder, int position) {
-        Recipe recipe = recipes.get(position);
-        holder.bind(recipe);
+        holder.bind(recipes.get(position));
     }
 
     @Override
@@ -51,15 +52,13 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
     }
 
     class RecipeViewHolder extends RecyclerView.ViewHolder {
-        private TextView text1;
-        private TextView text2;
+        private final ItemRecipeBinding binding;
 
-        RecipeViewHolder(@NonNull View itemView) {
-            super(itemView);
-            text1 = itemView.findViewById(android.R.id.text1);
-            text2 = itemView.findViewById(android.R.id.text2);
+        RecipeViewHolder(ItemRecipeBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
 
-            itemView.setOnClickListener(v -> {
+            binding.getRoot().setOnClickListener(v -> {
                 int position = getAdapterPosition();
                 if (position != RecyclerView.NO_POSITION && listener != null) {
                     listener.onRecipeClick(recipes.get(position));
@@ -68,9 +67,19 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
         }
 
         void bind(Recipe recipe) {
-            text1.setText(recipe.getTitle());
-            text2.setText(recipe.getCategory());
+            binding.tvTitle.setText(recipe.getTitle());
+            binding.tvCategory.setText(recipe.getCategory());
+
+            if (recipe.getImageUrl() != null && !recipe.getImageUrl().isEmpty()) {
+                Glide.with(binding.getRoot().getContext())
+                        .load(recipe.getImageUrl())
+                        .placeholder(R.drawable.ic_recipe_placeholder)
+                        .centerCrop()
+                        .into(binding.ivRecipeImage);
+            } else {
+                binding.ivRecipeImage.setImageResource(R.drawable.ic_recipe_placeholder);
+                binding.ivRecipeImage.setScaleType(android.widget.ImageView.ScaleType.CENTER);
+            }
         }
     }
 }
-

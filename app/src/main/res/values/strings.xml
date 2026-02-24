@@ -23,8 +23,8 @@
 
     <!-- Recipe -->
     <string name="recipe_title">Recipe Title</string>
-    <string name="ingredients">Ingredients</string>
-    <string name="steps">Steps</string>
+    <string name="ingredients">Ingredients (comma separated)</string>
+    <string name="steps">Steps (one per line)</string>
     <string name="category">Category</string>
     <string name="video_url">Video URL</string>
     <string name="save">Save</string>
@@ -33,8 +33,9 @@
     <string name="delete">Delete</string>
 
     <!-- Profile -->
+    <string name="back">Back</string>
     <string name="logout">Logout</string>
     <string name="user_photo">User Photo</string>
     <string name="my_recipes">My Recipes</string>
+    <string name="remove_photo">Remove photo</string>
 </resources>
-

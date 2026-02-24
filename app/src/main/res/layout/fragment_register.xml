@@ -16,12 +16,29 @@
             android:layout_height="100dp"
             android:layout_marginTop="32dp"
             android:contentDescription="@string/profile_image"
-            android:scaleType="centerCrop"
-            android:src="@mipmap/ic_launcher"
+            android:padding="14dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_profile_placeholder"
+            android:background="?attr/colorSurfaceVariant"
             app:shapeAppearanceOverlay="@style/CircleImage"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnRemovePhoto"
+            style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:visibility="gone"
+            app:icon="@android:drawable/ic_menu_close_clear_cancel"
+            app:iconSize="16dp"
+            app:iconPadding="0dp"
+            android:contentDescription="@string/remove_photo"
+            app:layout_constraintStart_toEndOf="@id/ivProfileImage"
+            app:layout_constraintTop_toTopOf="@id/ivProfileImage"
+            app:layout_constraintEnd_toEndOf="@id/ivProfileImage"
+            app:layout_constraintBottom_toBottomOf="@id/ivProfileImage" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilName"

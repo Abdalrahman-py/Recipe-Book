@@ -6,7 +6,6 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -14,14 +13,16 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-    import com.bumptech.glide.Glide;
+import com.bumptech.glide.Glide;
 import com.google.android.material.tabs.TabLayout;
 
 import java.util.List;
 
 import ucas.recipebook.MainActivity;
+import ucas.recipebook.R;
 import ucas.recipebook.databinding.FragmentHomeBinding;
 import ucas.recipebook.ui.adapter.RecipeAdapter;
+import ucas.recipebook.utils.ToastUtils;
 import ucas.recipebook.viewmodel.HomeViewModel;
 
 public class HomeFragment extends Fragment {
@@ -29,6 +30,7 @@ public class HomeFragment extends Fragment {
     private FragmentHomeBinding binding;
     private HomeViewModel viewModel;
     private RecipeAdapter adapter;
+    private boolean isFirstLoad = true;
 
     @Nullable
     @Override
@@ -52,7 +54,8 @@ public class HomeFragment extends Fragment {
     }
 
     private void setupTabs(List<String> categoryList) {
-        // Clear existing tabs
+        // Clear existing tabs and listeners
+        binding.tabLayout.clearOnTabSelectedListeners();
         binding.tabLayout.removeAllTabs();
 
         // Add tabs dynamically from category list
@@ -99,7 +102,7 @@ public class HomeFragment extends Fragment {
         // Observe repository errors
         viewModel.observeRepositoryErrors().observe(getViewLifecycleOwner(), error -> {
             if (error != null && !error.isEmpty()) {
-                Toast.makeText(requireContext(), "Error: " + error, Toast.LENGTH_LONG).show();
+                ToastUtils.showLong(requireContext(), "Error: " + error);
             }
         });
 
@@ -120,16 +123,25 @@ public class HomeFragment extends Fragment {
         // Observe error messages from ViewModel
         viewModel.getErrorMessage().observe(getViewLifecycleOwner(), error -> {
             if (error != null && !error.isEmpty()) {
-                Toast.makeText(requireContext(), "Error: " + error, Toast.LENGTH_LONG).show();
+                ToastUtils.showLong(requireContext(), "Error: " + error);
             }
         });
 
         // Observe current user profile for profile icon
         viewModel.getCurrentUserProfile().observe(getViewLifecycleOwner(), user -> {
             if (user != null && user.getPhotoUrl() != null && !user.getPhotoUrl().isEmpty()) {
+                binding.ivProfile.setPadding(0, 0, 0, 0);
+                binding.ivProfile.setScaleType(android.widget.ImageView.ScaleType.CENTER_CROP);
                 Glide.with(requireContext())
                         .load(user.getPhotoUrl())
+                        .placeholder(R.drawable.ic_profile_placeholder)
+                        .circleCrop()
                         .into(binding.ivProfile);
+            } else {
+                int p = (int) (6 * getResources().getDisplayMetrics().density);
+                binding.ivProfile.setPadding(p, p, p, p);
+                binding.ivProfile.setScaleType(android.widget.ImageView.ScaleType.CENTER_INSIDE);
+                binding.ivProfile.setImageResource(R.drawable.ic_profile_placeholder);
             }
         });
     }
@@ -169,8 +181,12 @@ public class HomeFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        // Reload recipes when returning to HomeFragment
-        viewModel.loadAllRecipes();
+        if (isFirstLoad) {
+            isFirstLoad = false;
+        } else {
+            // Reload recipes when returning from another fragment
+            viewModel.loadAllRecipes();
+        }
     }
 
     @Override

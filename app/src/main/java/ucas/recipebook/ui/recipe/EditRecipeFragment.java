@@ -9,7 +9,6 @@ import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -25,6 +24,7 @@ import java.io.File;
 
 import ucas.recipebook.data.model.Recipe;
 import ucas.recipebook.databinding.FragmentEditRecipeBinding;
+import ucas.recipebook.utils.ToastUtils;
 import ucas.recipebook.viewmodel.RecipeViewModel;
 
 public class EditRecipeFragment extends Fragment {
@@ -105,7 +105,7 @@ public class EditRecipeFragment extends Fragment {
             binding.etVideoUrl.setText(recipe.getVideoUrl());
 
             if (recipe.getIngredients() != null) {
-                binding.etIngredients.setText(String.join("\n", recipe.getIngredients()));
+                binding.etIngredients.setText(String.join(", ", recipe.getIngredients()));
             }
 
             if (recipe.getSteps() != null) {
@@ -123,27 +123,27 @@ public class EditRecipeFragment extends Fragment {
             String videoUrl = binding.etVideoUrl.getText().toString().trim();
 
             if (TextUtils.isEmpty(title)) {
-                Toast.makeText(requireContext(), "Please enter recipe title", Toast.LENGTH_SHORT).show();
+                ToastUtils.showShort(requireContext(), "Please enter recipe title");
                 return;
             }
 
             if (TextUtils.isEmpty(ingredients)) {
-                Toast.makeText(requireContext(), "Please enter ingredients", Toast.LENGTH_SHORT).show();
+                ToastUtils.showShort(requireContext(), "Please enter ingredients");
                 return;
             }
 
             if (TextUtils.isEmpty(steps)) {
-                Toast.makeText(requireContext(), "Please enter steps", Toast.LENGTH_SHORT).show();
+                ToastUtils.showShort(requireContext(), "Please enter steps");
                 return;
             }
 
             if (TextUtils.isEmpty(category)) {
-                Toast.makeText(requireContext(), "Please enter category", Toast.LENGTH_SHORT).show();
+                ToastUtils.showShort(requireContext(), "Please enter category");
                 return;
             }
 
             if (!videoUrl.isEmpty() && !Patterns.WEB_URL.matcher(videoUrl).matches()) {
-                Toast.makeText(requireContext(), "Invalid video URL", Toast.LENGTH_SHORT).show();
+                ToastUtils.showShort(requireContext(), "Invalid video URL");
                 return;
             }
 
@@ -163,10 +163,10 @@ public class EditRecipeFragment extends Fragment {
                         imageUrl
                 ).observe(getViewLifecycleOwner(), success -> {
                     if (success != null && success) {
-                        Toast.makeText(requireContext(), "Recipe updated successfully", Toast.LENGTH_SHORT).show();
+                        ToastUtils.showShort(requireContext(), "Recipe updated successfully");
                         requireActivity().getSupportFragmentManager().popBackStack();
                     } else {
-                        Toast.makeText(requireContext(), "Failed to update recipe", Toast.LENGTH_SHORT).show();
+                        ToastUtils.showShort(requireContext(), "Failed to update recipe");
                     }
                 });
             }

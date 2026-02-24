@@ -7,8 +7,6 @@ import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -17,6 +15,7 @@ import androidx.lifecycle.ViewModelProvider;
 import ucas.recipebook.AuthActivity;
 import ucas.recipebook.MainActivity;
 import ucas.recipebook.databinding.FragmentLoginBinding;
+import ucas.recipebook.utils.ToastUtils;
 import ucas.recipebook.viewmodel.LoginViewModel;
 
 public class LoginFragment extends Fragment {
@@ -52,7 +51,7 @@ public class LoginFragment extends Fragment {
         // Observe login success
         viewModel.getLoginSuccess().observe(getViewLifecycleOwner(), success -> {
             if (success != null && success) {
-                Toast.makeText(requireContext(), "Login successful!", Toast.LENGTH_SHORT).show();
+                ToastUtils.showShort(requireContext(), "Login successful!");
                 navigateToMainActivity();
             }
         });
@@ -60,7 +59,7 @@ public class LoginFragment extends Fragment {
         // Observe error messages
         viewModel.getErrorMessage().observe(getViewLifecycleOwner(), error -> {
             if (error != null) {
-                Toast.makeText(requireContext(), "Login failed: " + error, Toast.LENGTH_LONG).show();
+                ToastUtils.showLong(requireContext(), "Login failed: " + error);
             }
         });
     }
@@ -73,17 +72,17 @@ public class LoginFragment extends Fragment {
 
             // Validate inputs
             if (TextUtils.isEmpty(email)) {
-                Toast.makeText(requireContext(), "Please enter email", Toast.LENGTH_SHORT).show();
+                ToastUtils.showShort(requireContext(), "Please enter email");
                 return;
             }
 
             if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                Toast.makeText(requireContext(), "Invalid email format", Toast.LENGTH_SHORT).show();
+                ToastUtils.showShort(requireContext(), "Invalid email format");
                 return;
             }
 
             if (TextUtils.isEmpty(password)) {
-                Toast.makeText(requireContext(), "Please enter password", Toast.LENGTH_SHORT).show();
+                ToastUtils.showShort(requireContext(), "Please enter password");
                 return;
             }
 

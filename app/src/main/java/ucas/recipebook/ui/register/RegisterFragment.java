@@ -10,7 +10,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -21,6 +20,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import ucas.recipebook.R;
 import ucas.recipebook.databinding.FragmentRegisterBinding;
+import ucas.recipebook.utils.ToastUtils;
 import ucas.recipebook.viewmodel.RegisterViewModel;
 
 import com.yalantis.ucrop.UCrop;
@@ -90,7 +90,7 @@ public class RegisterFragment extends Fragment {
         // Observe registration success
         viewModel.getRegisterSuccess().observe(getViewLifecycleOwner(), success -> {
             if (success != null && success) {
-                Toast.makeText(requireContext(), "Registration successful! Please login.", Toast.LENGTH_SHORT).show();
+                ToastUtils.showShort(requireContext(), "Registration successful! Please login.");
                 requireActivity().getSupportFragmentManager().popBackStack();
             }
         });
@@ -98,12 +98,21 @@ public class RegisterFragment extends Fragment {
         // Observe error messages
         viewModel.getErrorMessage().observe(getViewLifecycleOwner(), error -> {
             if (error != null) {
-                Toast.makeText(requireContext(), "Registration failed: " + error, Toast.LENGTH_LONG).show();
+                ToastUtils.showLong(requireContext(), "Registration failed: " + error);
             }
         });
     }
 
     private void setupListeners() {
+        binding.btnRemovePhoto.setOnClickListener(v -> {
+            selectedImageUri = null;
+            int p = (int) (14 * getResources().getDisplayMetrics().density);
+            binding.ivProfileImage.setPadding(p, p, p, p);
+            binding.ivProfileImage.setScaleType(android.widget.ImageView.ScaleType.CENTER_INSIDE);
+            binding.ivProfileImage.setImageResource(R.drawable.ic_profile_placeholder);
+            binding.btnRemovePhoto.setVisibility(View.GONE);
+        });
+
         binding.btnRegister.setOnClickListener(v -> {
             String name = binding.etName.getText().toString().trim();
             String email = binding.etEmail.getText().toString().trim();
@@ -112,27 +121,27 @@ public class RegisterFragment extends Fragment {
 
             // Validate inputs
             if (TextUtils.isEmpty(name)) {
-                Toast.makeText(requireContext(), "Please enter name", Toast.LENGTH_SHORT).show();
+                ToastUtils.showShort(requireContext(), "Please enter name");
                 return;
             }
 
             if (TextUtils.isEmpty(email)) {
-                Toast.makeText(requireContext(), "Please enter email", Toast.LENGTH_SHORT).show();
+                ToastUtils.showShort(requireContext(), "Please enter email");
                 return;
             }
 
             if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                Toast.makeText(requireContext(), "Invalid email format", Toast.LENGTH_SHORT).show();
+                ToastUtils.showShort(requireContext(), "Invalid email format");
                 return;
             }
 
             if (TextUtils.isEmpty(password)) {
-                Toast.makeText(requireContext(), "Please enter password", Toast.LENGTH_SHORT).show();
+                ToastUtils.showShort(requireContext(), "Please enter password");
                 return;
             }
 
             if (password.length() < 6) {
-                Toast.makeText(requireContext(), "Password must be at least 6 characters", Toast.LENGTH_SHORT).show();
+                ToastUtils.showShort(requireContext(), "Password must be at least 6 characters");
                 return;
             }
 
@@ -158,7 +167,10 @@ public class RegisterFragment extends Fragment {
             Uri resultUri = UCrop.getOutput(data);
             if (resultUri != null) {
                 selectedImageUri = resultUri;
+                binding.ivProfileImage.setPadding(0, 0, 0, 0);
+                binding.ivProfileImage.setScaleType(android.widget.ImageView.ScaleType.CENTER_CROP);
                 binding.ivProfileImage.setImageURI(resultUri);
+                binding.btnRemovePhoto.setVisibility(View.VISIBLE);
             }
         }
     }

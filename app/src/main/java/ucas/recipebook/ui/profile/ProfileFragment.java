@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -24,8 +23,10 @@ import java.io.File;
 
 import ucas.recipebook.AuthActivity;
 import ucas.recipebook.MainActivity;
+import ucas.recipebook.R;
 import ucas.recipebook.databinding.FragmentProfileBinding;
 import ucas.recipebook.ui.adapter.RecipeAdapter;
+import ucas.recipebook.utils.ToastUtils;
 import ucas.recipebook.viewmodel.ProfileViewModel;
 
 public class ProfileFragment extends Fragment {
@@ -100,9 +101,20 @@ public class ProfileFragment extends Fragment {
                 binding.tvEmail.setText(user.getEmail());
 
                 if (user.getPhotoUrl() != null && !user.getPhotoUrl().isEmpty()) {
+                    binding.ivUserPhoto.setPadding(0, 0, 0, 0);
+                    binding.ivUserPhoto.setScaleType(android.widget.ImageView.ScaleType.CENTER_CROP);
                     Glide.with(requireContext())
                             .load(user.getPhotoUrl())
+                            .placeholder(R.drawable.ic_profile_placeholder)
+                            .circleCrop()
                             .into(binding.ivUserPhoto);
+                    binding.btnRemovePhoto.setVisibility(View.VISIBLE);
+                } else {
+                    int p = (int) (12 * getResources().getDisplayMetrics().density);
+                    binding.ivUserPhoto.setPadding(p, p, p, p);
+                    binding.ivUserPhoto.setScaleType(android.widget.ImageView.ScaleType.CENTER_INSIDE);
+                    binding.ivUserPhoto.setImageResource(R.drawable.ic_profile_placeholder);
+                    binding.btnRemovePhoto.setVisibility(View.GONE);
                 }
             }
         });
@@ -117,15 +129,28 @@ public class ProfileFragment extends Fragment {
         // Observe error messages
         viewModel.getErrorMessage().observe(getViewLifecycleOwner(), error -> {
             if (error != null) {
-                Toast.makeText(requireContext(), "Error: " + error, Toast.LENGTH_LONG).show();
+                ToastUtils.showLong(requireContext(), "Error: " + error);
             }
         });
     }
 
     private void setupListeners() {
+        binding.btnBack.setOnClickListener(v ->
+                requireActivity().getSupportFragmentManager().popBackStack());
+
+        binding.btnRemovePhoto.setOnClickListener(v -> {
+            selectedImageUri = null;
+            int p = (int) (12 * getResources().getDisplayMetrics().density);
+            binding.ivUserPhoto.setPadding(p, p, p, p);
+            binding.ivUserPhoto.setScaleType(android.widget.ImageView.ScaleType.CENTER_INSIDE);
+            binding.ivUserPhoto.setImageResource(R.drawable.ic_profile_placeholder);
+            binding.btnRemovePhoto.setVisibility(View.GONE);
+            viewModel.updateProfileImage(null);
+        });
+
         binding.ivLogout.setOnClickListener(v -> {
             viewModel.logout();
-            Toast.makeText(requireContext(), "Logged out successfully", Toast.LENGTH_SHORT).show();
+            ToastUtils.showShort(requireContext(), "Logged out successfully");
 
             Intent intent = new Intent(requireContext(), AuthActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -142,11 +167,11 @@ public class ProfileFragment extends Fragment {
             Uri resultUri = UCrop.getOutput(data);
             if (resultUri != null) {
                 selectedImageUri = resultUri;
+                binding.ivUserPhoto.setPadding(0, 0, 0, 0);
+                binding.ivUserPhoto.setScaleType(android.widget.ImageView.ScaleType.CENTER_CROP);
                 binding.ivUserPhoto.setImageURI(resultUri);
-
-                if (selectedImageUri != null) {
-                    viewModel.updateProfileImage(selectedImageUri.toString());
-                }
+                binding.btnRemovePhoto.setVisibility(View.VISIBLE);
+                viewModel.updateProfileImage(selectedImageUri.toString());
             }
         }
     }

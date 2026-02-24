@@ -9,7 +9,6 @@ import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -25,6 +24,7 @@ import com.yalantis.ucrop.UCrop;
 import java.io.File;
 
 import ucas.recipebook.databinding.FragmentAddRecipeBinding;
+import ucas.recipebook.utils.ToastUtils;
 import ucas.recipebook.viewmodel.RecipeViewModel;
 
 public class AddRecipeFragment extends Fragment {
@@ -78,7 +78,7 @@ public class AddRecipeFragment extends Fragment {
         // Observe add success
         viewModel.getAddSuccess().observe(getViewLifecycleOwner(), success -> {
             if (success != null && success) {
-                Toast.makeText(requireContext(), "Recipe added successfully", Toast.LENGTH_SHORT).show();
+                ToastUtils.showShort(requireContext(), "Recipe added successfully");
                 requireActivity().getSupportFragmentManager().popBackStack();
             }
         });
@@ -86,7 +86,7 @@ public class AddRecipeFragment extends Fragment {
         // Observe error messages
         viewModel.getErrorMessage().observe(getViewLifecycleOwner(), error -> {
             if (error != null) {
-                Toast.makeText(requireContext(), "Failed to add recipe: " + error, Toast.LENGTH_LONG).show();
+                ToastUtils.showLong(requireContext(), "Failed to add recipe: " + error);
             }
         });
     }
@@ -101,34 +101,34 @@ public class AddRecipeFragment extends Fragment {
 
             // Validate required fields
             if (TextUtils.isEmpty(title)) {
-                Toast.makeText(requireContext(), "Please enter recipe title", Toast.LENGTH_SHORT).show();
+                ToastUtils.showShort(requireContext(), "Please enter recipe title");
                 return;
             }
 
             if (TextUtils.isEmpty(ingredients)) {
-                Toast.makeText(requireContext(), "Please enter ingredients", Toast.LENGTH_SHORT).show();
+                ToastUtils.showShort(requireContext(), "Please enter ingredients");
                 return;
             }
 
             if (TextUtils.isEmpty(steps)) {
-                Toast.makeText(requireContext(), "Please enter steps", Toast.LENGTH_SHORT).show();
+                ToastUtils.showShort(requireContext(), "Please enter steps");
                 return;
             }
 
             if (TextUtils.isEmpty(category)) {
-                Toast.makeText(requireContext(), "Please enter category", Toast.LENGTH_SHORT).show();
+                ToastUtils.showShort(requireContext(), "Please enter category");
                 return;
             }
 
             if (!videoUrl.isEmpty() && !Patterns.WEB_URL.matcher(videoUrl).matches()) {
-                Toast.makeText(requireContext(), "Invalid video URL", Toast.LENGTH_SHORT).show();
+                ToastUtils.showShort(requireContext(), "Invalid video URL");
                 return;
             }
 
             // Get current user ID
             FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
             if (currentUser == null) {
-                Toast.makeText(requireContext(), "User not logged in", Toast.LENGTH_SHORT).show();
+                ToastUtils.showShort(requireContext(), "User not logged in");
                 return;
             }
 

@@ -70,38 +70,40 @@ public class RecipeRepository {
     public void getAllRecipes() {
         firestore.collection("recipes")
                 .orderBy("createdAt", Query.Direction.DESCENDING)
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    List<Recipe> recipes = new ArrayList<>();
-                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-                        Recipe recipe = new Recipe();
-                        recipe.setId(document.getId());
-                        recipe.setTitle(document.getString("title"));
-                        recipe.setCategory(document.getString("category"));
-                        recipe.setVideoUrl(document.getString("videoUrl"));
-                        recipe.setImageUrl(document.getString("imageUrl"));
-                        recipe.setCreatorId(document.getString("creatorId"));
-
-                        // Get ingredients list
-                        List<String> ingredientsList = (List<String>) document.get("ingredients");
-                        recipe.setIngredients(ingredientsList);
-
-                        // Get steps list
-                        List<String> stepsList = (List<String>) document.get("steps");
-                        recipe.setSteps(stepsList);
-
-                        // Get timestamp
-                        Timestamp timestamp = document.getTimestamp("createdAt");
-                        if (timestamp != null) {
-                            recipe.setCreatedAt(timestamp.toDate());
-                        }
-
-                        recipes.add(recipe);
+                .addSnapshotListener((value, error) -> {
+                    if (error != null) {
+                        errorMessage.postValue(error.getMessage());
+                        return;
                     }
-                    recipeList.setValue(recipes);
-                })
-                .addOnFailureListener(e -> {
-                    errorMessage.setValue(e.getMessage());
+                    if (value != null) {
+                        List<Recipe> recipes = new ArrayList<>();
+                        for (QueryDocumentSnapshot document : value) {
+                            String title = document.getString("title");
+                            if (title == null || title.trim().isEmpty()) continue;
+
+                            Recipe recipe = new Recipe();
+                            recipe.setId(document.getId());
+                            recipe.setTitle(title);
+                            recipe.setCategory(document.getString("category"));
+                            recipe.setVideoUrl(document.getString("videoUrl"));
+                            recipe.setImageUrl(document.getString("imageUrl"));
+                            recipe.setCreatorId(document.getString("creatorId"));
+
+                            List<String> ingredientsList = (List<String>) document.get("ingredients");
+                            recipe.setIngredients(ingredientsList);
+
+                            List<String> stepsList = (List<String>) document.get("steps");
+                            recipe.setSteps(stepsList);
+
+                            Timestamp timestamp = document.getTimestamp("createdAt");
+                            if (timestamp != null) {
+                                recipe.setCreatedAt(timestamp.toDate());
+                            }
+
+                            recipes.add(recipe);
+                        }
+                        recipeList.postValue(recipes);
+                    }
                 });
     }
 
@@ -123,9 +125,12 @@ public class RecipeRepository {
                     if (value != null) {
                         List<Recipe> recipes = new ArrayList<>();
                         for (QueryDocumentSnapshot document : value) {
+                            String title = document.getString("title");
+                            if (title == null || title.trim().isEmpty()) continue;
+
                             Recipe recipe = new Recipe();
                             recipe.setId(document.getId());
-                            recipe.setTitle(document.getString("title"));
+                            recipe.setTitle(title);
                             recipe.setCategory(document.getString("category"));
                             recipe.setVideoUrl(document.getString("videoUrl"));
                             recipe.setImageUrl(document.getString("imageUrl"));

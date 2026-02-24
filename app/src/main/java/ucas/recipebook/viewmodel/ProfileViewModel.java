@@ -5,7 +5,6 @@ import android.app.Application;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 
 import com.google.firebase.auth.FirebaseUser;
 
@@ -23,10 +22,6 @@ public class ProfileViewModel extends AndroidViewModel {
     private final RecipeRepository recipeRepository;
     private final SessionManager sessionManager;
 
-    private final MutableLiveData<User> userProfile = new MutableLiveData<>();
-    private final MutableLiveData<String> errorMessage = new MutableLiveData<>();
-    private final MutableLiveData<List<Recipe>> userRecipes = new MutableLiveData<>();
-
     public ProfileViewModel(@NonNull Application application) {
         super(application);
         authRepository = new AuthRepository();
@@ -40,42 +35,13 @@ public class ProfileViewModel extends AndroidViewModel {
         FirebaseUser currentUser = authRepository.getCurrentUser();
         if (currentUser != null) {
             authRepository.getUserProfile(currentUser.getUid());
-
-            authRepository.getUserProfile().observeForever(user -> {
-                if (user != null) {
-                    userProfile.setValue(user);
-                }
-            });
-
-            authRepository.getErrorMessage().observeForever(error -> {
-                if (error != null) {
-                    errorMessage.setValue(error);
-                }
-            });
         }
     }
 
     public void loadUserRecipes() {
         FirebaseUser currentUser = authRepository.getCurrentUser();
-        if (currentUser == null) {
-            userRecipes.setValue(null);
-            return;
-        }
-
-        String uid = currentUser.getUid();
-        recipeRepository.getRecipesByUser(uid);
-
-        recipeRepository.getUserRecipeList().observeForever(recipes -> {
-            if (recipes != null) {
-                userRecipes.setValue(recipes);
-            }
-        });
-
-        recipeRepository.getErrorMessage().observeForever(error -> {
-            if (error != null) {
-                errorMessage.setValue(error);
-            }
-        });
+        if (currentUser == null) return;
+        recipeRepository.getRecipesByUser(currentUser.getUid());
     }
 
     public void logout() {
@@ -88,14 +54,14 @@ public class ProfileViewModel extends AndroidViewModel {
     }
 
     public LiveData<User> getUserProfile() {
-        return userProfile;
+        return authRepository.getUserProfile();
     }
 
     public LiveData<String> getErrorMessage() {
-        return errorMessage;
+        return authRepository.getProfileErrorMessage();
     }
 
     public LiveData<List<Recipe>> getUserRecipes() {
-        return userRecipes;
+        return recipeRepository.getUserRecipeList();
     }
 }

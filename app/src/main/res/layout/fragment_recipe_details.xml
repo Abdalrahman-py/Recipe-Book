@@ -13,30 +13,37 @@
             android:id="@+id/ivRecipeImage"
             android:layout_width="0dp"
             android:layout_height="200dp"
+            android:background="?attr/colorSurfaceVariant"
             android:contentDescription="@string/recipe_image"
-            android:scaleType="centerCrop"
-            android:src="@mipmap/ic_launcher"
+            android:scaleType="center"
+            android:src="@drawable/ic_recipe_placeholder"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageView
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/ivEdit"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_margin="16dp"
+            style="@style/Widget.Material3.Button.IconButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_margin="8dp"
             android:contentDescription="@string/edit"
-            android:src="@android:drawable/ic_menu_edit"
+            app:icon="@drawable/ic_edit"
+            app:iconSize="24dp"
+            app:iconTint="?attr/colorOnSurface"
             app:layout_constraintEnd_toStartOf="@id/ivDelete"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageView
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/ivDelete"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_margin="16dp"
+            style="@style/Widget.Material3.Button.IconButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_margin="8dp"
             android:contentDescription="@string/delete"
-            android:src="@android:drawable/ic_menu_delete"
+            app:icon="@drawable/ic_delete"
+            app:iconSize="24dp"
+            app:iconTint="?attr/colorError"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
